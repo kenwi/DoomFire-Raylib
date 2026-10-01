@@ -9,7 +9,8 @@ uniform sampler2D texture0;
 void main()
 {
     vec3 color = texture(texture0, fragTexCoord).rgb;
-    // Green tracks heat: the yellow core blooms, and orange leaves a softer halo.
-    float hot = smoothstep(0.18, 0.75, color.g);
+    // Luma covers blue and purple ramps. Green still picks up the Doom core.
+    float luma = dot(color, vec3(0.299, 0.587, 0.114));
+    float hot = smoothstep(0.18, 0.75, max(color.g, luma));
     finalColor = vec4(color * hot, 1.0);
 }

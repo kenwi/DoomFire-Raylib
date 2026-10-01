@@ -26,10 +26,18 @@ internal sealed class FirePresenter : IDisposable
     private int _smoothHeight;
     private int _bloomWidth;
     private int _bloomHeight;
+    private int _paletteIndex;
     private bool _targetsReady;
     private bool _disposed;
 
     public bool Effects { get; set; } = true;
+
+    public string PaletteName => FirePalette.All[_paletteIndex].Name;
+
+    public void CyclePalette()
+    {
+        _paletteIndex = (_paletteIndex + 1) % FirePalette.All.Count;
+    }
 
     public FirePresenter()
     {
@@ -66,7 +74,7 @@ internal sealed class FirePresenter : IDisposable
         Raylib.SetShaderValueV(
             _present,
             _paletteLoc,
-            FirePalette.Colors,
+            FirePalette.All[_paletteIndex].Colors,
             ShaderUniformDataType.Vec3,
             FirePalette.Count);
 
