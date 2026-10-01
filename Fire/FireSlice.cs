@@ -3,7 +3,7 @@ using Raylib_cs;
 namespace DoomFire.Fire;
 
 /// <summary>
-/// Doom fire feature: wind input, GPU heat spread, and palette present.
+/// Doom fire feature: wind, fuel, scatter simulation, and the shaded present.
 /// </summary>
 public sealed class FireSlice : IDisposable
 {
@@ -46,6 +46,11 @@ public sealed class FireSlice : IDisposable
         if (Raylib.IsKeyPressed(KeyboardKey.Space))
         {
             _simulation.Emitting = !_simulation.Emitting;
+        }
+
+        if (_presenter is not null && Raylib.IsKeyPressed(KeyboardKey.One))
+        {
+            _presenter.Effects = !_presenter.Effects;
         }
 
         _simulation.Step(_wind);
@@ -109,8 +114,9 @@ public sealed class FireSlice : IDisposable
     private void DrawHud()
     {
         string fuel = _simulation?.Emitting == true ? "on" : "off";
-        Raylib.DrawRectangle(8, 8, 520, 46, new Color(0, 0, 0, 150));
+        string fx = _presenter?.Effects == true ? "on" : "off";
+        Raylib.DrawRectangle(8, 8, 700, 46, new Color(0, 0, 0, 150));
         Raylib.DrawText("Doom fire", 16, 14, 20, new Color(255, 220, 180, 255));
-        Raylib.DrawText($"wind {_wind,5:0.00}    A/D or arrows    space fuel {fuel}    esc quits", 16, 36, 16, new Color(220, 180, 140, 255));
+        Raylib.DrawText($"wind {_wind,5:0.00}    A/D or arrows    space fuel {fuel}    1 fx {fx}    esc quits", 16, 36, 16, new Color(220, 180, 140, 255));
     }
 }

@@ -14,4 +14,5 @@ Each cell passes its heat to one neighbor above and cools by zero or one. A shad
 
 - A, D, or the arrow keys lean the flames
 - Space toggles the fuel. Off lets the flames already burning die out
+- 1 toggles smoothing and glow
 - Esc quits
