@@ -43,6 +43,11 @@ public sealed class FireSlice : IDisposable
             _wind = float.Lerp(_wind, target, blend);
         }
 
+        if (Raylib.IsKeyPressed(KeyboardKey.Space))
+        {
+            _simulation.Emitting = !_simulation.Emitting;
+        }
+
         _simulation.Step(_wind);
     }
 
@@ -103,8 +108,9 @@ public sealed class FireSlice : IDisposable
 
     private void DrawHud()
     {
-        Raylib.DrawRectangle(8, 8, 360, 46, new Color(0, 0, 0, 150));
+        string fuel = _simulation?.Emitting == true ? "on" : "off";
+        Raylib.DrawRectangle(8, 8, 520, 46, new Color(0, 0, 0, 150));
         Raylib.DrawText("Doom fire", 16, 14, 20, new Color(255, 220, 180, 255));
-        Raylib.DrawText($"wind {_wind,5:0.00}    A/D or arrows    esc quits", 16, 36, 16, new Color(220, 180, 140, 255));
+        Raylib.DrawText($"wind {_wind,5:0.00}    A/D or arrows    space fuel {fuel}    esc quits", 16, 36, 16, new Color(220, 180, 140, 255));
     }
 }

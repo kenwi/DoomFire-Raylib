@@ -20,6 +20,8 @@ internal sealed class FireSimulation : IDisposable
 
     public Texture2D Heat => _texture;
 
+    public bool Emitting { get; set; } = true;
+
     public void EnsureSize(int width, int height)
     {
         if (width < 2 || height < 2)
@@ -41,10 +43,9 @@ internal sealed class FireSimulation : IDisposable
         _height = height;
         _heat = new byte[width * height];
         _pixels = new byte[width * height * 4];
-        int bottom = (height - 1) * width;
-        for (int x = 0; x < width; x++)
+        if (Emitting)
         {
-            _heat[bottom + x] = FirePalette.MaxIndex;
+            IgniteBottom();
         }
 
         Image image = Raylib.GenImageColor(width, height, Color.Black);
@@ -68,7 +69,15 @@ internal sealed class FireSimulation : IDisposable
         for (int src = 0; src < length; src++)
         {
             int rand = (int)Math.Round(_random.NextDouble() * 3.0) & 3;
-            int index = Math.Max(0, src - _width - rand + 1 - windSteps);
+            // The article's (1 - rand) offsets are +1, 0, -1, -2, so still air
+            // drifts left. These four are centered: -1, 0, 0, +1.
+            int shift = rand switch
+            {
+                0 => -1,
+                3 => 1,
+                _ => 0,
+            };
+            int index = Math.Max(0, src - _width + shift - windSteps);
             if (index >= length)
             {
                 continue;
@@ -76,6 +85,15 @@ internal sealed class FireSimulation : IDisposable
 
             int cooled = _heat[src] - (rand & 1);
             _heat[index] = (byte)Math.Max(0, cooled);
+        }
+
+        if (Emitting)
+        {
+            IgniteBottom();
+        }
+        else
+        {
+            CoolBottom();
         }
 
         Publish();
@@ -93,6 +111,26 @@ internal sealed class FireSimulation : IDisposable
         {
             Raylib.UnloadTexture(_texture);
             _ready = false;
+        }
+    }
+
+    private void IgniteBottom()
+    {
+        int bottom = (_height - 1) * _width;
+        for (int x = 0; x < _width; x++)
+        {
+            _heat[bottom + x] = FirePalette.MaxIndex;
+        }
+    }
+
+    private void CoolBottom()
+    {
+        int bottom = (_height - 1) * _width;
+        for (int x = 0; x < _width; x++)
+        {
+            int rand = (int)Math.Round(_random.NextDouble() * 3.0) & 3;
+            int cooled = _heat[bottom + x] - (rand & 1);
+            _heat[bottom + x] = (byte)Math.Max(0, cooled);
         }
     }
 
